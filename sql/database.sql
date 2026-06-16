@@ -9,7 +9,9 @@ CREATE TABLE menu_items (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255),
     price NUMERIC(10,2),
-    category VARCHAR(50)
+    category VARCHAR(50),
+    image_path TEXT,
+    is_active BOOLEAN DEFAULT true
 );
 
 CREATE TABLE orders (
@@ -25,3 +27,4 @@ CREATE TABLE order_items (
     menu_item_id INT REFERENCES menu_items(id),
     quantity INT
 );
+
