@@ -30,9 +30,10 @@ include "includes/db.php";
             <h2>Gerecht toevoegen</h2>
             <p class="muted-text">Voeg snel een nieuw menu-item toe.</p>
 
-            <form id="addItem" class="stacked-form">
+            <form id="addItem" class="stacked-form" enctype="multipart/form-data">
                 <input type="text" name="name" placeholder="Naam van gerecht" required>
                 <input type="number" name="price" placeholder="Prijs" step="0.01" min="0" required>
+                <input type="file" name="image" accept="image/jpeg,image/png,image/webp,image/gif">
                 <select name="category" required>
                     <option value="">Kies categorie</option>
                     <option value="Pizza">Pizza</option>
@@ -62,10 +63,27 @@ include "includes/db.php";
 $("#addItem").submit(function(e){
     e.preventDefault();
 
-    $.post("api/add_menu.php", $(this).serialize(), function(){
-        alert("Gerecht toegevoegd!");
-        $("#addItem")[0].reset();
-        loadMenu();
+    let formData = new FormData(this);
+
+    $.ajax({
+        url: "api/add_menu.php",
+        type: "POST",
+        data: formData,
+        dataType: "json",
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            if (response.success) {
+                alert("Gerecht toegevoegd!");
+                $("#addItem")[0].reset();
+                loadMenu();
+            } else {
+                alert(response.message || "Gerecht kon niet worden toegevoegd.");
+            }
+        },
+        error: function() {
+            alert("Gerecht kon niet worden toegevoegd.");
+        }
     });
 });
 
@@ -80,11 +98,19 @@ function loadMenu() {
         }
 
         items.forEach(i => {
+            let image = i.image_path
+                ? `<img src="${i.image_path}" alt="${i.name}" class="admin-product-thumb">`
+                : `<div class="admin-product-thumb placeholder-thumb">Geen foto</div>`;
+
             html += `
-                <div class="list-row">
-                    <span>${i.name}</span>
-                    <span class="row-meta">${i.category || "Geen categorie"}</span>
+                <div class="list-row product-row">
+                    ${image}
+                    <div class="product-row-info">
+                        <strong class="product-name">${i.name}</strong>
+                        <span class="row-meta">${i.category || "Geen categorie"}</span>
+                    </div>
                     <strong>€${parseFloat(i.price).toFixed(2)}</strong>
+                    <button class="delete-product" data-id="${i.id}" data-name="${i.name}">Verwijderen</button>
                 </div>
             `;
         });
@@ -92,6 +118,23 @@ function loadMenu() {
         $("#menu").html(html);
     });
 }
+
+$(document).on("click", ".delete-product", function(){
+    let id = $(this).data("id");
+    let name = $(this).data("name");
+
+    if (!confirm(`Weet je zeker dat je '${name}' wilt verwijderen?`)) {
+        return;
+    }
+
+    $.post("api/delete_menu.php", { id: id }, function(response){
+        if (response.success) {
+            loadMenu();
+        } else {
+            alert(response.message || "Product kon niet worden verwijderd.");
+        }
+    }, "json");
+});
 
 loadMenu();
 </script>
