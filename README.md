@@ -12,6 +12,7 @@ logout.php
 API / Backend
 
 api/create_order.php
+api/delete_menu
 
 Verantwoordelijkheden
 

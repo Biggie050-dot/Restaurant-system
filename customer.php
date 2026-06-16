@@ -35,14 +35,24 @@ $categories = ["Pizza", "Burger", "Pasta", "Dranken", "Dessert"];
         <div class="menu-container">
 
             <?php
-            $sql = "SELECT * FROM menu_items WHERE category = '$category'";
+            $sql = "SELECT * FROM menu_items WHERE category = '$category' AND COALESCE(is_active, true) = true";
             $result = pg_query($conn, $sql);
 
             while ($item = pg_fetch_assoc($result)) {
             ?>
 
                 <div class="menu-item">
-                    <h3><?php echo $item["name"]; ?></h3>
+                    <?php if (!empty($item["image_path"])) { ?>
+                        <img
+                            src="<?php echo htmlspecialchars($item["image_path"]); ?>"
+                            alt="<?php echo htmlspecialchars($item["name"]); ?>"
+                            class="product-image"
+                        >
+                    <?php } else { ?>
+                        <div class="product-image product-image-placeholder">Geen foto</div>
+                    <?php } ?>
+
+                    <h3><?php echo htmlspecialchars($item["name"]); ?></h3>
 
                     <p class="price">
                         €<?php echo number_format($item["price"], 2, ',', '.'); ?>
@@ -51,7 +61,7 @@ $categories = ["Pizza", "Burger", "Pasta", "Dranken", "Dessert"];
                     <button
                         class="add-to-cart"
                         data-id="<?php echo $item["id"]; ?>"
-                        data-name="<?php echo $item["name"]; ?>"
+                        data-name="<?php echo htmlspecialchars($item["name"]); ?>"
                         data-price="<?php echo $item["price"]; ?>"
                     >
                         Toevoegen

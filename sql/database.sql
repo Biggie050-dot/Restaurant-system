@@ -8,7 +8,8 @@ CREATE TABLE users (
 CREATE TABLE menu_items (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255),
-    price NUMERIC(10,2)
+    price NUMERIC(10,2),
+    category VARCHAR(50)
 );
 
 CREATE TABLE orders (
