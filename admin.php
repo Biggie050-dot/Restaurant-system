@@ -13,7 +13,7 @@
 $("#addItem").submit(function(e){
     e.preventDefault();
 
-    $.post("api/add_menu_item.php", $(this).serialize(), function(){
+    $.post("api/add_menu.php", $(this).serialize(), function(){
         alert("Gerecht toegevoegd!");
         loadMenu();
     });
