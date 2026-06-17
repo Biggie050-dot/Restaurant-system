@@ -406,3 +406,128 @@ select {
 .delete-product:hover {
     background-color: #990000;
 }
+
+/* Cleaner menu/product layout */
+.menu-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 24px;
+    align-items: stretch;
+}
+
+.menu-item {
+    width: auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 10px;
+    overflow: hidden;
+}
+
+.menu-item img.product-image,
+.product-image {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 8px;
+}
+
+.menu-item h3 {
+    min-height: 48px;
+    margin: 0;
+    font-size: 20px;
+}
+
+.menu-item .price {
+    margin: 8px 0 12px;
+    font-size: 18px;
+}
+
+.form-label {
+    display: block;
+    margin: 0 0 6px;
+    font-weight: bold;
+    color: #333;
+}
+
+.selected-image-preview {
+    min-height: 140px;
+    margin-bottom: 15px;
+    border: 2px dashed #ffd0ad;
+    border-radius: 12px;
+    background-color: #fff7f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ff6600;
+    font-weight: bold;
+    text-align: center;
+    overflow: hidden;
+}
+
+.selected-image-preview img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+}
+
+.admin-products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 18px;
+}
+
+.admin-product-card {
+    background: #f8f8f8;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-product-image {
+    width: 100%;
+    height: 135px;
+    object-fit: cover;
+    background-color: #fff1e6;
+}
+
+.admin-product-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ff6600;
+    font-weight: bold;
+}
+
+.admin-product-content {
+    padding: 14px;
+    display: grid;
+    gap: 6px;
+}
+
+.admin-product-content h3 {
+    margin: 0;
+    color: #333;
+}
+
+.admin-product-content strong {
+    color: #ff6600;
+}
+
+.product-category {
+    color: #777;
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.admin-product-card .delete-product {
+    margin: 0 14px 14px;
+    width: calc(100% - 28px);
+}
