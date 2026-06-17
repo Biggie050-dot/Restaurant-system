@@ -6,7 +6,8 @@ header('Content-Type: application/json');
 $name = trim($_POST['name'] ?? '');
 $price = $_POST['price'] ?? '';
 $category = trim($_POST['category'] ?? '');
-$image_path = null;
+$selectedImage = trim($_POST['image_path'] ?? '');
+$imagePath = null;
 
 if ($name === '' || $price === '' || $category === '') {
     http_response_code(400);
@@ -14,57 +15,32 @@ if ($name === '' || $price === '' || $category === '') {
     exit();
 }
 
-if (isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE) {
-    if ($_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+if ($selectedImage !== '') {
+    $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+    $extension = strtolower(pathinfo($selectedImage, PATHINFO_EXTENSION));
+
+    if (substr($selectedImage, 0, 7) !== "foto's/" || !in_array($extension, $allowedExtensions, true)) {
         http_response_code(400);
-        echo json_encode(["success" => false, "message" => "Afbeelding uploaden is mislukt."]);
+        echo json_encode(["success" => false, "message" => "Ongeldige foto gekozen."]);
         exit();
     }
 
-    if ($_FILES['image']['size'] > 5 * 1024 * 1024) {
+    $fileName = basename($selectedImage);
+    $realPhotoDir = realpath(__DIR__ . "/../foto's/");
+    $realImagePath = realpath(__DIR__ . "/../foto's/" . $fileName);
+
+    if ($realPhotoDir === false || $realImagePath === false || strpos($realImagePath, $realPhotoDir) !== 0 || !is_file($realImagePath)) {
         http_response_code(400);
-        echo json_encode(["success" => false, "message" => "Afbeelding mag maximaal 5 MB zijn."]);
+        echo json_encode(["success" => false, "message" => "De gekozen foto bestaat niet in de map foto's."]);
         exit();
     }
 
-    $allowedTypes = [
-        'image/jpeg' => 'jpg',
-        'image/png' => 'png',
-        'image/webp' => 'webp',
-        'image/gif' => 'gif'
-    ];
-
-    $fileInfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mimeType = finfo_file($fileInfo, $_FILES['image']['tmp_name']);
-    finfo_close($fileInfo);
-
-    if (!array_key_exists($mimeType, $allowedTypes)) {
-        http_response_code(400);
-        echo json_encode(["success" => false, "message" => "Alleen JPG, PNG, WEBP of GIF afbeeldingen zijn toegestaan."]);
-        exit();
-    }
-
-    $uploadDir = __DIR__ . '/../uploads/menu/';
-    if (!is_dir($uploadDir)) {
-        mkdir($uploadDir, 0755, true);
-    }
-
-    $extension = $allowedTypes[$mimeType];
-    $fileName = uniqid('product_', true) . '.' . $extension;
-    $targetPath = $uploadDir . $fileName;
-
-    if (!move_uploaded_file($_FILES['image']['tmp_name'], $targetPath)) {
-        http_response_code(500);
-        echo json_encode(["success" => false, "message" => "Afbeelding kon niet worden opgeslagen."]);
-        exit();
-    }
-
-    $image_path = 'uploads/menu/' . $fileName;
+    $imagePath = "foto's/" . $fileName;
 }
 
 $result = pg_query_params($conn,
     "INSERT INTO menu_items (name, price, category, image_path, is_active) VALUES ($1, $2, $3, $4, true)",
-    [$name, $price, $category, $image_path]
+    [$name, $price, $category, $imagePath]
 );
 
 if (!$result) {
