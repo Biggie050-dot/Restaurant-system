@@ -42,21 +42,25 @@ $categories = ["Pizza", "Burger", "Pasta", "Dranken", "Dessert"];
             ?>
 
                 <div class="menu-item">
-                    <?php if (!empty($item["image_path"])) { ?>
-                        <img
-                            src="<?php echo htmlspecialchars($item["image_path"]); ?>"
-                            alt="<?php echo htmlspecialchars($item["name"]); ?>"
-                            class="product-image"
-                        >
-                    <?php } else { ?>
-                        <div class="product-image product-image-placeholder">Geen foto</div>
-                    <?php } ?>
+                    <div class="product-image-box">
+                        <?php if (!empty($item["image_path"])) { ?>
+                            <img
+                                src="<?php echo htmlspecialchars($item["image_path"]); ?>"
+                                alt="<?php echo htmlspecialchars($item["name"]); ?>"
+                                class="product-image"
+                            >
+                        <?php } else { ?>
+                            <div class="product-image-placeholder">Geen foto</div>
+                        <?php } ?>
+                    </div>
 
-                    <h3><?php echo htmlspecialchars($item["name"]); ?></h3>
+                    <div class="product-info">
+                        <h3><?php echo htmlspecialchars($item["name"]); ?></h3>
 
-                    <p class="price">
-                        €<?php echo number_format($item["price"], 2, ',', '.'); ?>
-                    </p>
+                        <p class="price">
+                            €<?php echo number_format($item["price"], 2, ',', '.'); ?>
+                        </p>
+                    </div>
 
                     <button
                         class="add-to-cart"
