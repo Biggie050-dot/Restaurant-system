@@ -6,11 +6,11 @@ Dit project is een volledig (gesimuleerd)functioneel, live-updating Restaurant M
 
 ### Ensar Isci
 * **Pagina's:** `login.php`, `customer.php`, `order_status.php`, `logout.php`
-* **API / Backend:** `api/create_order.php`,`api/delete_menu.php`
+* **API / Backend:** `api/create_order.php`,`api/delete_menu.php`, `api/list_images.php`, `api/add_menu.php`, `js/app.js`
 
 ### Ersan Ascioglu
 * **Pagina's:** `kitchen.php`, `cashier.php`, `admin.php`
-* **API / Backend:** `api/get_orders.php`, `api/update_status.php`, `api/add_menu.php`
+* **API / Backend:** `api/get_orders.php`, `api/update_status.php`, , `api/get_menu.php`
 
 ---
 
