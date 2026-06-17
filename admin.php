@@ -28,13 +28,17 @@ include "includes/db.php";
     <div class="dashboard-grid">
         <section class="panel-card">
             <h2>Gerecht toevoegen</h2>
-            <p class="muted-text">Voeg snel een nieuw menu-item toe.</p>
+            <p class="muted-text">Kies een foto uit de map <strong>foto's</strong> en voeg een product toe.</p>
 
-            <form id="addItem" class="stacked-form" enctype="multipart/form-data">
-                <input type="text" name="name" placeholder="Naam van gerecht" required>
-                <input type="number" name="price" placeholder="Prijs" step="0.01" min="0" required>
-                <input type="file" name="image" accept="image/jpeg,image/png,image/webp,image/gif">
-                <select name="category" required>
+            <form id="addItem" class="stacked-form">
+                <label class="form-label" for="name">Naam gerecht</label>
+                <input type="text" id="name" name="name" placeholder="Bijv. Pizza Margherita" required>
+
+                <label class="form-label" for="price">Prijs</label>
+                <input type="number" id="price" name="price" placeholder="Bijv. 12.50" step="0.01" min="0" required>
+
+                <label class="form-label" for="category">Categorie</label>
+                <select id="category" name="category" required>
                     <option value="">Kies categorie</option>
                     <option value="Pizza">Pizza</option>
                     <option value="Burger">Burger</option>
@@ -42,6 +46,16 @@ include "includes/db.php";
                     <option value="Dranken">Dranken</option>
                     <option value="Dessert">Dessert</option>
                 </select>
+
+                <label class="form-label" for="imageSelect">Productfoto</label>
+                <select id="imageSelect" name="image_path">
+                    <option value="">Geen foto</option>
+                </select>
+
+                <div id="imagePreview" class="selected-image-preview">
+                    Geen foto geselecteerd
+                </div>
+
                 <button type="submit">Toevoegen</button>
             </form>
         </section>
@@ -50,32 +64,68 @@ include "includes/db.php";
             <div class="section-heading">
                 <div>
                     <h2>Menu Items</h2>
-                    <p class="muted-text">Overzicht van alle gerechten.</p>
+                    <p class="muted-text">Overzicht van alle actieve gerechten.</p>
                 </div>
             </div>
-            <div id="menu" class="menu-list"></div>
+            <div id="menu" class="admin-products-grid"></div>
         </section>
     </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
+function escapeHtml(value) {
+    return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function loadImages() {
+    $.get("api/list_images.php", function(images) {
+        let options = '<option value="">Geen foto</option>';
+
+        if (images && images.length > 0) {
+            images.forEach(img => {
+                options += `<option value="${escapeHtml(img.path)}">${escapeHtml(img.name)}</option>`;
+            });
+        }
+
+        $("#imageSelect").html(options);
+        updateImagePreview();
+    }, "json");
+}
+
+function updateImagePreview() {
+    let path = $("#imageSelect").val();
+
+    if (!path) {
+        $("#imagePreview").html("Geen foto geselecteerd").removeClass("has-image");
+        return;
+    }
+
+    $("#imagePreview")
+        .addClass("has-image")
+        .html(`<img src="${escapeHtml(path)}" alt="Geselecteerde productfoto">`);
+}
+
+$("#imageSelect").on("change", updateImagePreview);
+
 $("#addItem").submit(function(e){
     e.preventDefault();
-
-    let formData = new FormData(this);
 
     $.ajax({
         url: "api/add_menu.php",
         type: "POST",
-        data: formData,
+        data: $(this).serialize(),
         dataType: "json",
-        processData: false,
-        contentType: false,
         success: function(response) {
             if (response.success) {
                 alert("Gerecht toegevoegd!");
                 $("#addItem")[0].reset();
+                updateImagePreview();
                 loadMenu();
             } else {
                 alert(response.message || "Gerecht kon niet worden toegevoegd.");
@@ -99,19 +149,19 @@ function loadMenu() {
 
         items.forEach(i => {
             let image = i.image_path
-                ? `<img src="${i.image_path}" alt="${i.name}" class="admin-product-thumb">`
-                : `<div class="admin-product-thumb placeholder-thumb">Geen foto</div>`;
+                ? `<img src="${escapeHtml(i.image_path)}" alt="${escapeHtml(i.name)}" class="admin-product-image">`
+                : `<div class="admin-product-image admin-product-placeholder">Geen foto</div>`;
 
             html += `
-                <div class="list-row product-row">
+                <article class="admin-product-card">
                     ${image}
-                    <div class="product-row-info">
-                        <strong class="product-name">${i.name}</strong>
-                        <span class="row-meta">${i.category || "Geen categorie"}</span>
+                    <div class="admin-product-content">
+                        <span class="product-category">${escapeHtml(i.category || "Geen categorie")}</span>
+                        <h3>${escapeHtml(i.name)}</h3>
+                        <strong>€${parseFloat(i.price).toFixed(2)}</strong>
                     </div>
-                    <strong>€${parseFloat(i.price).toFixed(2)}</strong>
-                    <button class="delete-product" data-id="${i.id}" data-name="${i.name}">Verwijderen</button>
-                </div>
+                    <button class="delete-product" data-id="${i.id}" data-name="${escapeHtml(i.name)}">Verwijderen</button>
+                </article>
             `;
         });
 
@@ -136,6 +186,7 @@ $(document).on("click", ".delete-product", function(){
     }, "json");
 });
 
+loadImages();
 loadMenu();
 </script>
 </body>
